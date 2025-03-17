@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<sdf version="1.6">
+  <world name="default">
+
+    <include>
+      <uri>
+        https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane
+      </uri>
+    </include>
+
+    <include>
+      <uri>
+        https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun
+      </uri>
+    </include>
+
+    <!-- Edit world gravity here -->
+    <gravity>0.0 0.0 -9.81</gravity>
+    
+  </world>
+</sdf>

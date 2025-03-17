@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+
+  <!-- Pendulum object -->
+
+  <model name='pendulum' canonical_link='string0'>
+
+    <link name='string0'>
+      <pose relative_to='__model__'>0.0 0.0 -0.25 0.0 0.0 0.0</pose>
+
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.002084</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.002084</iyy>
+          <iyz>0</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+
+      <visual name='visual'>
+        <geometry>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.5</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      <!-- no collision -->
+
+    </link>
+
+    <link name='weight0'>
+      <pose relative_to='string0'>0.0 0.0 -0.25 0.0 0.0 0.0</pose>
+
+      <inertial>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.001000</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.001000</iyy>
+          <iyz>0</iyz>
+          <izz>0.001000</izz>
+        </inertia>
+      </inertial>
+
+      <visual name='visual'>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.6 1</diffuse>
+          <specular>0.5 0.5 1.0 1</specular>
+        </material>
+      </visual>
+
+      <collision name='collision'>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+        <surface>
+          <bounce>
+            <restitution_coefficient> 1.0 </restitution_coefficient>
+          </bounce>
+        </surface>
+      </collision>
+
+    </link>
+
+    <joint name='world_string0' type='revolute'>
+      <parent>world</parent>
+      <child>string0</child>
+      <pose>0.0 0.0 0.25 0.0 0.0 0.0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+      </axis>
+    </joint>
+     
+    <joint name='string0_weight0' type='fixed'>
+      <parent>string0</parent>
+      <child>weight0</child>
+      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+    </joint>
+
+    <plugin
+      filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+    </plugin>
+
+  </model>
+
+</sdf>

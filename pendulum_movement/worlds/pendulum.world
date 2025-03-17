@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+  Gazebo ROS state plugin commands
+    Call the get_entity_state service:
+      ros2 service call /demo/get_entity_state 'gazebo_msgs/GetEntityState' '{name: "boxes"}'
+      ros2 service call /demo/get_entity_state 'gazebo_msgs/GetEntityState' '{name: "boxes::bottom", reference_frame: "world"}'
+
+    Call the set_entity_state service:
+      ros2 service call /demo/set_entity_state 'gazebo_msgs/SetEntityState' '{state: {name: "boxes", pose: {position: {y: 2}}}}'
+      ros2 service call /demo/set_entity_state 'gazebo_msgs/SetEntityState' '{state: {name: "boxes::top", reference_frame: "boxes::top", twist: {angular: {x: 2}}}}'
+
+    Listen to topics:
+      ros2 topic echo /demo/model_states_demo
+      ros2 topic echo /demo/link_states_demo
+
+  Gazebo ROS force system plugin commands
+  
+    Call the apply_link_wrench service:
+      ros2 service call /apply_link_wrench gazebo_msgs/srv/ApplyLinkWrench '{link_name: "box::link", reference_frame: "", reference_point: { x: 100, y: 0, z: 0 }, 
+      wrench: { force: { x: 10, y: 0, z: 0 }, torque: { x: 0, y: 0, z: 0 } }, start_time: {sec: 0, nanosec: 0}, duration: {sec: -1, nanosec: 0} }'
+      
+    Call the clear_link_wrenches service:
+      ros2 service call /clear_link_wrenches gazebo_msgs/srv/LinkRequest '{link_name: "box::link"}' 
+
+    Call the apply_joint_effort service:
+      ros2 service call /apply_joint_effort gazebo_msgs/srv/ApplyJointEffort '{joint_name: "joint", effort: -1.0, start_time: {sec: 0, nanosec: 0}, duration: {sec: 2000, nanosec: 0} }' 
+     
+    Call the clear_joint_efforts service:
+      ros2 service call /clear_joint_efforts gazebo_msgs/srv/JointRequest '{joint_name: "joint"}'
+-->
+
+<sdf version="1.6">
+  <world name="default">
+
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/demo</namespace>
+        <argument>model_states:=model_states_demo</argument>
+        <argument>link_states:=link_states_demo</argument>
+      </ros>
+      <update_rate>10</update_rate>
+    </plugin>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Edit world gravity here -->
+    <gravity>0.0 0.0 -9.81</gravity>
+    
+  </world>
+</sdf>
