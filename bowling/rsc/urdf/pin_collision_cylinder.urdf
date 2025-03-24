@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot name="pin_urdf">
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <mesh filename="$(find bowling)/rsc/mesh/pin.dae"/>
+                <!-- <mesh filename="package://bowling/mesh/pin.dae"/> -->
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0.5 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.7" length="0.99"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="base_link_inertia">
+        <inertial>
+            <origin xyz="0 1 0"/>
+            <mass value="10"/>
+            <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="0.5"/>
+        </inertial>
+    </link>
+    <joint name="base_link_to_base_link_inertia" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_link_inertia"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+    
+    <gazebo reference="base_link">
+        <collision name='base_link_collision'>
+        <surface>
+        <friction>
+        <ode>
+        <mu>0.9</mu>
+        <mu2>0.9</mu2>
+        <fdir1>0 0 0</fdir1>
+        </ode>
+        </friction>
+        <contact>
+        <ode>
+        <kp>1e+13</kp>
+        <kd>1</kd>
+        <max_vel>0.01</max_vel>
+        </ode>
+        </contact>
+        <bounce>
+        <restitution_coefficient>0.0</restitution_coefficient>
+        <threshold>0.001</threshold>
+        </bounce>
+        </surface>
+        </collision>
+    </gazebo>
+</robot>
