@@ -23,23 +23,32 @@ find_package(gazebo_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(coin_rolling_msg REQUIRED)
 
+# Include mymat library
+include_directories(include)
+find_library(MYMAT_LIB NAMES mymat PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+# Make executable
 add_executable(coin_subscriber src/coin_subscriber.cpp)
 add_executable(inclined_coin_pubsub src/inclined_coin_pubsub.cpp)
 add_executable(coin_pubsub src/coin_pubsub.cpp)
 add_executable(test_subscriber src/test_subscriber.cpp)
+
+# Link mymat library to executable
+target_link_directories(inclined_coin_pubsub PUBLIC include/libmymat.so)
+target_link_libraries(inclined_coin_pubsub ${MYMAT_LIB})
+set_target_properties(inclined_coin_pubsub PROPERTIES INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(inclined_coin_pubsub PUBLIC include)
 
 ament_target_dependencies(coin_subscriber rclcpp std_msgs gazebo_msgs geometry_msgs)
 ament_target_dependencies(inclined_coin_pubsub rclcpp std_msgs gazebo_msgs geometry_msgs coin_rolling_msg)
 ament_target_dependencies(coin_pubsub rclcpp std_msgs gazebo_msgs geometry_msgs)
 ament_target_dependencies(test_subscriber rclcpp std_msgs gazebo_msgs geometry_msgs coin_rolling_msg)
 
-
-
 install(DIRECTORY
   launch
   rsc
   worlds
+  include
   DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
