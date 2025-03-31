@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot name="coin">
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.5" length="0.001"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.5" length="0.001"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="10"/>
+            <inertia ixx="0.7" ixy="0.0" ixz="0.0" iyy="0.7" iyz="0.0" izz="1.25"/>
+        </inertial>
+    </link>
+
+    <gazebo reference="base_link">
+        <collision name='base_link_collision'>
+        <surface>
+        <friction>
+        <ode>
+        <mu>1000</mu>
+        <mu2>1000</mu2>
+        <fdir1>0 0 0</fdir1>
+        </ode>
+        </friction>
+        <contact>
+        <ode>
+        <kp>1e+13</kp>
+        <kd>1</kd>
+        <max_vel>10.0</max_vel>
+        </ode>
+        </contact>
+        <bounce>
+        <restitution_coefficient>0.0</restitution_coefficient>
+        <threshold>0.00</threshold>
+        </bounce>
+        </surface>
+        </collision>
+    </gazebo>
+</robot>

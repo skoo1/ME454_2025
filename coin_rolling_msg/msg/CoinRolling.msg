@@ -1,0 +1,3 @@
+geometry_msgs/Vector3 angular_momentum
+geometry_msgs/Twist twist
+geometry_msgs/Pose pose
