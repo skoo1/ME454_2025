@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="empty_world">
+
+    <!-- Slow down the simulation 10x time -->
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_update_rate>100</real_time_update_rate>
+    </physics>
+
+    <!-- Gazebo-ROS plugin to set and get model state with ROS node -->
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/gazebo</namespace>
+        <argument>model_states:=model_states</argument>
+        <argument>link_states:=link_states</argument>
+      </ros>
+      <!-- The update rate is 10 Hz in sim time -->
+      <update_rate>10.0</update_rate>
+    </plugin>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <gravity>0.0 0.0 -9.8</gravity>
+
+  </world>
+</sdf>
