@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<robot name="crankshaft">
+  <joint name="fixed" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.1 "/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <joint name="first_joint" type="continuous">
+    <origin rpy="0.5 0 0" xyz="0 0 0.1 "/>
+    <axis xyz="1 0 0"/>
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <!--dynamics damping="0.01"/-->
+    <dynamics damping="0.0"/>
+    <limit effort="10000" velocity="0"/>
+  </joint>
+  
+  <link name="world"/>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
+    </inertial>
+
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0 0.05"/>
+      <geometry>
+        <box size="0.25 0.25 0.25"/>
+      </geometry>
+    </visual>
+
+  </link>
+  
+  <link name="link_1">
+    <inertial>
+      <mass value="1"/>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
+    </inertial>
+
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0 0.5"/>
+      <geometry>
+        <box size="0.1 0.2 1"/>
+      </geometry>
+    </visual>
+
+  </link>
+	
+ <gazebo reference="link_1">
+   <material>Gazebo/Green</material>
+ </gazebo>
+</robot>
+

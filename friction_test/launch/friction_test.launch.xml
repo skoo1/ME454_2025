@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py">
+        
+    </include>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py">
+        <arg name="world" value="$(find-pkg-share friction_test)/worlds/friction_test.world"/>
+        <arg name="pause" value = "true"/>
+        <arg name="verbose" value = "true"/>
+    </include>
+
+	<node pkg="gazebo_ros" exec='spawn_entity.py' output="screen" name="demo_listener_3" args="-entity ball 
+                                                                                                -file $(find-pkg-share friction_test)/rsc/urdf/friction_test.urdf
+                                                                                                -x 0.0
+                                                                                                -y 0.0
+                                                                                                -z 0.51
+                                                                                                -R 0.0
+                                                                                                -P 0.0
+                                                                                                -Y 0.0">
+                                                                                                </node>
+
+                                                                                                
+</launch>

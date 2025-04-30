@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py">
+        
+    </include>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py">
+        <arg name="world" value="$(find-pkg-share crankshaft)/worlds/crankshaft.world"/>
+        <arg name="pause" value = "true"/>
+    </include>
+
+
+    <node pkg="gazebo_ros" exec='spawn_entity.py' output="screen" name="demo_listener_4" args="-entity crankshaft2 
+                                                                                                -file $(find-pkg-share crankshaft)/rsc/urdf/crankrobot.sdf
+                                                                                                -x 0.0
+                                                                                                -y 0.0
+                                                                                                -z 0.0
+                                                                                                -R 0.0
+                                                                                                -P 0.0
+                                                                                                -Y 0.0">
+                                                                                                </node>
+                                                                                                
+</launch>
