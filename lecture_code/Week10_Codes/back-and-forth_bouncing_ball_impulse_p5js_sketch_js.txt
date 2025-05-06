@@ -1,0 +1,145 @@
+// -------------------- CONFIG --------------------
+let g = 9.81;        // gravity (m/s²)
+let R = 0.02;        // ball radius (m)
+let m = 0.02;        // ball mass (kg)
+let mu = 0.25;       // Coulomb friction coefficient
+let e = 0.95;        // normal coefficient of restitution
+let e_t = 0.6;       // tangential restitution
+
+let x0 = 1.0;        // initial horizontal position (m)
+let z0 = 1.0;        // initial vertical position (m)
+let v_x0 = 1.0;      // initial horizontal velocity (m/s)
+let v_z0 = 0.0;      // initial vertical velocity (m/s)
+let omega0 = -100.0; // initial spin (rad/s)
+
+let dt = 1e-3;       // simulation substep time (s) → 1ms
+let t_end = 10.0;    // total simulated time (s)
+
+let meterToPixel = 200.0; // 1 m = 200 px
+
+// -------------------- STATE --------------------
+let x, z, v_x, v_z, omega, theta;
+let I;
+let t = 0.0;
+
+// -------------------- DISPLAY --------------------
+let stepsPerFrame;
+
+// for plotting vx
+let ts = [];
+let vxs = [];
+
+function setup() {
+  createCanvas(1000, 500);
+  frameRate(60);
+
+  x = x0;
+  z = z0;
+  v_x = v_x0;
+  v_z = v_z0;
+  omega = omega0;
+  theta = 0.0;
+  I = 0.4 * m * R * R;  // moment of inertia for solid sphere
+
+  stepsPerFrame = 1 / (dt * 60); // substep per draw()
+}
+
+function draw() {
+  background(255);
+
+  // Draw ground
+  stroke(0);
+  let groundY = height - R * meterToPixel - 100;
+  line(0, groundY, width, groundY);
+
+  // ----------- Multiple substeps per frame -----------
+  for (let i = 0; i < stepsPerFrame; i++) {
+    simulateStep();
+    t += dt;
+    if (t > t_end) {
+      noLoop();
+      console.log('Simulation complete.');
+      break;
+    }
+  }
+
+  // ---------------- Drawing Ball ----------------
+  fill(100, 150, 250);
+  noStroke();
+  let drawX = x * meterToPixel;
+  let drawY = groundY - (z - R) * meterToPixel;
+  ellipse(drawX, drawY, 2 * R * meterToPixel, 2 * R * meterToPixel);
+
+  // -------- rotation indicator (diameter line) --------
+  const rPix  = R * meterToPixel;
+  stroke(0); strokeWeight(2);
+  const dx = rPix * Math.cos(theta);
+  const dy = rPix * Math.sin(theta);
+  line(drawX-dx, drawY+dy, drawX+dx, drawY-dy);
+
+  // ---------------- Draw vx(t) graph ----------------
+  drawVxGraph();
+}
+
+// -------------- One physics substep ------------------
+function simulateStep() {
+  // Gravity
+  v_z -= g * dt;
+
+  // Update position
+  x += v_x * dt;
+  z += v_z * dt;
+
+  // Collision with ground (plane at z = R)
+  if (z <= R && v_z < 0.0) {
+    z = R;
+    
+    let v_z_pre = v_z;
+    v_z = -e * v_z_pre;
+    let J_n = (v_z - v_z_pre) * m;
+    
+    let u_pre = v_x - R * omega;
+    let u_post = -e_t * u_pre;
+    
+    let J_t_star = (u_post - u_pre) * (2.0 * m / 7.0);
+    let J_t_max = mu * J_n;
+    
+    let J_t;
+    if (Math.abs(J_t_star) <= J_t_max) {
+      J_t = J_t_star;
+    } else {
+      J_t = -Math.sign(u_pre) * J_t_max;
+    }
+    
+    v_x += J_t / m;
+    omega -= J_t * R / I;
+  }
+
+  // advance spin angle
+  theta += omega * dt;
+
+  // Save for plotting
+  ts.push(t);
+  vxs.push(v_x);
+}
+
+// ----------------- Draw vx vs t graph -----------------
+function drawVxGraph() {
+  push();
+  translate(50, height - 350);
+  noFill();
+  stroke(0);
+  rect(0, -100, 300, 100);  // frame
+
+  beginShape();
+  stroke(200, 0, 0);
+  noFill();
+  for (let i = 0; i < vxs.length; i++) {
+    let px = map(ts[i], 0, t_end, 0, 300);
+    let py = map(vxs[i], 1.5, -0.5, -100, 0);  // vx scale
+    vertex(px, py);
+  }
+  endShape();
+
+  pop();
+}

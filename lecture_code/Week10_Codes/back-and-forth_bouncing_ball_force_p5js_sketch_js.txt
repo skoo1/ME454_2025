@@ -1,0 +1,169 @@
+// -------------------- CONFIG --------------------
+let g = 9.81;           // gravity (m/s²)
+let R = 0.02;           // ball radius (m)
+let m = 0.02;           // ball mass (kg)
+let mu = 0.25;          // Coulomb friction coefficient
+let k_n = 5.0e4;        // normal contact stiffness
+let c_n = 2.0;          // normal contact damping 
+let k_t = 3.0e4;        // tangential contact stiffness
+let c_t = 5.0;          // tangential contact damping
+
+let TAN_MODEL = 1;      // 1 = always integrate, 2 = stick-only integrate
+
+let x0 = 1.0;           // initial horizontal position (m)
+let z0 = 1.0;           // initial vertical position (m)
+let v_x0 = 0.5;         // initial horizontal velocity (m/s)
+let v_z0 = 0.0;         // initial vertical velocity (m/s)
+let omega0 = -50.0;     // initial spin (rad/s)
+
+let dt = 1e-3;          // simulation substep time (s) → 1ms
+let t_end = 3.0;        // total simulated time (s)
+
+let meterToPixel = 200.0;  // 1 m = 200 px
+
+// -------------------- STATE --------------------
+let x, z, v_x, v_z, omega;
+let theta = 0.0;
+let I;
+let shear_disp;
+let t = 0.0;
+
+// for plotting v_x over time
+let ts = [], vxs = [];
+
+let stepsPerFrame;
+
+function setup() {
+  createCanvas(1000, 500);
+  frameRate(60);
+
+  x = x0;
+  z = z0;
+  v_x = v_x0;
+  v_z = v_z0;
+  omega = omega0;
+  theta = 0.0;
+  shear_disp = 0.0;
+  I = 0.4 * m * R * R;
+
+  stepsPerFrame = 1 / (dt * 60); // ~16~17 steps per draw
+}
+
+function draw() {
+  background(255);
+
+  // Draw ground
+  stroke(0);
+  let groundY = height - R * meterToPixel - 100;
+  line(0, groundY, width, groundY);
+
+  // ------------ Substeps for physics ------------
+  for (let i = 0; i < stepsPerFrame; i++) {
+    simulateStep();
+    t += dt;
+    if (t > t_end) {
+      noLoop();
+      console.log('Simulation complete.');
+      break;
+    }
+  }
+
+  // -------------- Draw ball --------------
+  fill(100, 150, 250);
+  noStroke();
+  let drawX = x * meterToPixel;
+  let drawY = height - z * meterToPixel;
+  ellipse(drawX, drawY, 2 * R * meterToPixel, 2 * R * meterToPixel);
+
+  // -------- rotation indicator (diameter line) --------
+  let rPix  = R * meterToPixel;
+  stroke(0); strokeWeight(2);
+  let dx = rPix * Math.cos(theta);
+  let dy = rPix * Math.sin(theta);
+  line(drawX - dx, drawY + dy, drawX + dx, drawY - dy);
+
+  // ------------ Optional: Draw vx(t) graph ------------
+  drawVxGraph();
+}
+
+// ----------------- Physics step --------------------
+function simulateStep() {
+  let f_x = 0.0;
+  let f_z = -m * g;
+  let tau = 0.0;
+
+  let pen = R - z; // penetration depth
+
+  if (pen > 0.0) {
+    // Normal contact force (Kelvin model)
+    let f_n = k_n * pen + c_n * (-v_z);
+    f_n = max(f_n, 0.0);
+    f_z += f_n;
+
+    // Relative tangential velocity
+    let u = v_x - R * omega;
+
+    // Tangential force trial (spring + damper)
+    if (TAN_MODEL === 1) {
+      shear_disp += u * dt;
+    }
+    let f_el = -k_t * shear_disp;
+    let f_d  = -c_t * u;
+    let f_t_trial = f_el + f_d;
+    let f_t_max = mu * f_n;
+
+    let f_t;
+    if (abs(f_t_trial) <= f_t_max) {  // Stick
+      f_t = f_t_trial;
+      if (TAN_MODEL === 2) {
+        shear_disp += u * dt;
+      }
+    } else { // Slip
+      f_t = -Math.sign(u) * f_t_max;
+      shear_disp = -f_t / k_t;
+    }
+
+    f_x += f_t;
+    tau  = -f_t * R;
+  } else {
+    shear_disp = 0.0;
+  }
+
+  // Semi-implicit integration
+  let a_x = f_x / m;
+  let a_z = f_z / m;
+  let alpha = tau / I;
+
+  v_x += a_x * dt;
+  v_z += a_z * dt;
+  omega += alpha * dt;
+  theta += omega * dt;
+
+  x += v_x * dt;
+  z += v_z * dt;
+
+  // Save vx for plotting
+  ts.push(t);
+  vxs.push(v_x);
+}
+
+// -------------- Draw vx(t) graph ---------------
+function drawVxGraph() {
+  push();
+  translate(50, height-350);
+  noFill();
+  stroke(0);
+  rect(0, -100, 300, 100); // frame
+
+  beginShape();
+  stroke(200, 0, 0);
+  noFill();
+  for (let i = 0; i < vxs.length; i++) {
+    let px = map(ts[i], 0, t_end, 0, 300);
+    let py = map(vxs[i], 1.5, -0.5, -100, 0); // vx scale
+    vertex(px, py);
+  }
+  endShape();
+  
+  pop();
+}
