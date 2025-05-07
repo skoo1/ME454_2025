@@ -14,7 +14,7 @@ let q_dot = [];  // [vx1, vy1, w1, vx2, vy2, w2]
 let M;           // mass matrix 6x6
 
 let alpha = 20.0;  // Baumgarte stabilization alpha (velocity stabilization)
-let beta = 10.0;  // Baumgarte stabilization beta (position stabilization)
+let beta = 10.0;   // Baumgarte stabilization beta (position stabilization)
 
 let dt = 0.001;
 

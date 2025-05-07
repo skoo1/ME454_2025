@@ -176,26 +176,3 @@ plt.grid(True)
 
 plt.tight_layout()
 plt.show()
-
-# Plot generalized coordinates
-t = np.linspace(0, T, steps + 1)
-fig, ax = plt.subplots()
-for i in range(6):
-    ax.plot(t, q_hist[:, i], label=f'q[{i}]')
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('q components')
-ax.set_title('Generalized Coordinates over Time')
-ax.legend()
-fig.tight_layout()
-plt.show()
-
-# Plot generalized velocities
-fig, ax = plt.subplots()
-for i in range(6):
-    ax.plot(t, q_dot_hist[:, i], label=f'q_dot[{i}]')
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('q_dot components')
-ax.set_title('Generalized Velocities over Time')
-ax.legend()
-fig.tight_layout()
-plt.show()
