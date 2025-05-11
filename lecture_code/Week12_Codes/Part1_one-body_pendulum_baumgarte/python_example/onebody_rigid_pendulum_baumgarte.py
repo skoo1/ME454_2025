@@ -50,11 +50,16 @@ def update_F_ext():
 
 
 def compute_q_ddot(q, q_dot, M, alpha, beta):
+    x1, y1, th1 = q
+    c, s = np.cos(th1), np.sin(th1)
+
     J, J_dot = update_J_and_J_dot(q, q_dot)
     F_ext    = update_F_ext()
 
-    # Constraint error (position)
-    C = np.array([q[0] - l1 * np.sin(q[2]), q[1] + l1 * np.cos(q[2])])
+    # Constraint errors (position and velocity)
+    C1 = x1 - l1 * s  # x1 - l1*sin(theta1)
+    C2 = y1 + l1 * c  # y1 + l1*cos(theta1)
+    C = np.array([C1, C2])
     C_dot = np.dot(J, q_dot)
 
     # Construct b vector
@@ -74,16 +79,33 @@ def compute_q_ddot(q, q_dot, M, alpha, beta):
 
     return q_ddot, lambda_prime, C, C_dot
 
+def compute_energy(q, q_dot):
+    x1, y1, th1 = q
+    vx1, vy1, w1 = q_dot
+
+    # Kinetic energy (translational + rotational)
+    KE_trans = 0.5 * m1 * (vx1**2 + vy1**2)
+    KE_rot   = 0.5 * I1 * w1**2
+    KE = KE_trans + KE_rot
+
+    # Potential energy (assume y=0 is reference level)
+    PE = m1 * g * y1
+
+    return KE, PE, KE + PE
+
 
 # Simulation parameters
 dt    = 0.001    # time step [s]
-T     = 2.0      # total simulation time [s]
+T     = 5.0      # total simulation time [s]
 steps = int(T/dt)
 
 # For storing results
 q_hist     = np.zeros((steps+1, 3))
 q_dot_hist = np.zeros((steps+1, 3))
 t_hist     = np.linspace(0, T, steps+1)
+KE_hist      = np.zeros(steps+1)
+PE_hist      = np.zeros(steps+1)
+E_total_hist = np.zeros(steps+1)
 
 # For storing constraint violations
 C_hist     = np.zeros(steps+1)  # C(q) violation
@@ -92,6 +114,7 @@ C_dot_hist = np.zeros(steps+1)  # C_dot(q) violation
 # Record initial conditions
 q_hist[0]     = q
 q_dot_hist[0] = q_dot
+KE_hist[0], PE_hist[0], E_total_hist[0] = compute_energy(q, q_dot)
 
 # Main loop
 for i in range(steps):
@@ -108,13 +131,12 @@ for i in range(steps):
     q_hist[i+1]     = q
     q_dot_hist[i+1] = q_dot
 
+    # Store energy
+    KE_hist[i+1], PE_hist[i+1], E_total_hist[i+1] = compute_energy(q, q_dot)
 
-# Plot only 100 equally-spaced configurations
-num_samples = 500
-indices = np.linspace(0, len(q_hist)-1, num_samples, dtype=int)
-
+# Visualize position history
 plt.figure()
-for idx in indices[::10]: # every 10th
+for idx in np.arange(0, len(q_hist)-1, 50, dtype=int):
     x1, y1, th1 = q_hist[idx]
 
     # Link 1 endpoints (from center at x1, y1)
@@ -130,7 +152,7 @@ ax = plt.gca()
 ax.set_aspect('equal', 'box')
 plt.xlabel('X [m]')
 plt.ylabel('Y [m]')
-plt.title('Sampled Link Configurations with Half-Length Links')
+plt.title('Sampled Link Configurations')
 plt.show()
 
 # Plot constraint violations
@@ -152,24 +174,14 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-# Plot generalized coordinates q over time
-fig, ax = plt.subplots()
-for i in range(q_hist.shape[1]):
-    ax.plot(t_hist, q_hist[:, i], label=f'q[{i}]')
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('q components')
-ax.set_title('Generalized Coordinates over Time')
-ax.legend()
-fig.tight_layout()
-plt.show()
-
-# Plot generalized velocities q_dot over time
-fig, ax = plt.subplots()
-for i in range(q_dot_hist.shape[1]):
-    ax.plot(t_hist, q_dot_hist[:, i], label=f'q_dot[{i}]')
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('q_dot components')
-ax.set_title('Generalized Velocities over Time')
-ax.legend()
-fig.tight_layout()
+# Plot kinematic and potential energies
+plt.figure()
+plt.plot(t_hist, KE_hist, label='Kinetic Energy (KE)')
+plt.plot(t_hist, PE_hist, label='Potential Energy (PE)')
+plt.plot(t_hist, E_total_hist, label='Total Energy (KE+PE)')
+plt.xlabel('Time [s]')
+plt.ylabel('Energy [J]')
+plt.title('Energy vs. Time')
+plt.legend()
+plt.grid(True)
 plt.show()
