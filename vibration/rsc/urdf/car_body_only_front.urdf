@@ -1,0 +1,151 @@
+<?xml version="1.0" ?>
+<robot name="car_suspension">
+  <link name="car_body">
+    <visual>
+        <geometry>
+            <box size="0.4 0.8 0.4"/>
+        </geometry>
+    </visual>
+    <collision>
+        <geometry>
+            <box size="0.4 0.8 0.2"/>
+        </geometry>
+    </collision>
+    <inertial>
+        <mass value="100"/>
+        <inertia ixx="10.0" ixy="0.0" ixz="0.0" iyy="10.0" iyz="0.0" izz="10.0"/>
+    </inertial>
+  </link>
+
+  <joint name="suspension_front" type="prismatic">
+    <origin rpy="0 0 0" xyz="0.0 0.35 0.0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="car_body"/>
+    <child link="front_wheel_body"/>
+    <dynamics damping="0.8"/>
+    <limit effort="10000" lower="-0.05" upper="0.05" velocity="2.0"/>
+  </joint>
+
+    <link name="front_wheel_body">
+        <visual>
+            <geometry>
+                <box size="0.6 0.1 0.05"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.125"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.6 0.1 0.05"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.125"/>
+        </collision>
+        <inertial>
+            <mass value="1"/>
+            <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1"/>
+        </inertial>
+    </link>
+
+  <joint name="front_body_to_left_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.3 0 -0.125"/>
+    <axis xyz="1 0 0"/>
+    <parent link="front_wheel_body"/>
+    <child link="front_wheel_left"/>
+    <limit effort="10000" velocity="2.0"/>
+  </joint>
+  
+    <link name="front_wheel_left">
+        <visual>
+            <geometry>
+                <cylinder radius="0.2" length="0.1"/>
+            </geometry>
+            <origin rpy="0 -1.57 0" xyz="-0.05 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.2" length="0.1"/>
+            </geometry>
+            <origin rpy="0 -1.57 0" xyz="-0.05 0.0 0.0"/>
+        </collision>
+        <inertial>
+            <mass value="1"/>
+            <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1"/>
+        </inertial>
+    </link>
+
+  <joint name="front_body_to_right_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="0.3 0 -0.125"/>
+    <axis xyz="1 0 0"/>
+    <parent link="front_wheel_body"/>
+    <child link="front_wheel_right"/>
+    <limit effort="10000" velocity="2.0"/>
+  </joint>
+  
+    <link name="front_wheel_right">
+        <visual>
+            <geometry>
+                <cylinder radius="0.2" length="0.1"/>
+            </geometry>
+            <origin rpy="0 -1.57 0" xyz="0.05 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.2" length="0.1"/>
+            </geometry>
+            <origin rpy="0 -1.57 0" xyz="0.05 0.0 0.0"/>
+        </collision>
+        <inertial>
+            <mass value="1"/>
+            <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1"/>
+        </inertial>
+    </link>
+
+    <gazebo reference="front_wheel_right">
+        <collision name='front_wheel_right_collision'>
+        <surface>
+        <friction>
+        <ode>
+        <mu>0.7</mu>
+        <mu2>0.7</mu2>
+        <fdir1>1 0 0</fdir1>
+        </ode>
+        </friction>
+        <contact>
+        <ode>
+        <kp>1e+13</kp>
+        <kd>1</kd>
+        <max_vel>10.0</max_vel>
+        </ode>
+        </contact>
+        <bounce>
+        <restitution_coefficient>0.0</restitution_coefficient>
+        <threshold>0.00</threshold>
+        </bounce>
+        </surface>
+        </collision>
+    </gazebo>
+
+    <gazebo reference="front_wheel_left">
+        <collision name='front_wheel_right_collision'>
+        <surface>
+        <friction>
+        <ode>
+        <mu>0.7</mu>
+        <mu2>0.7</mu2>
+        <fdir1>1 0 0</fdir1>
+        </ode>
+        </friction>
+        <contact>
+        <ode>
+        <kp>1e+13</kp>
+        <kd>1</kd>
+        <max_vel>10.0</max_vel>
+        </ode>
+        </contact>
+        <bounce>
+        <restitution_coefficient>0.0</restitution_coefficient>
+        <threshold>0.00</threshold>
+        </bounce>
+        </surface>
+        </collision>
+    </gazebo>
+</robot>
