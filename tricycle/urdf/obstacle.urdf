@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<robot name="tricycle_model">
+  <link name="base_dummy">
+  </link>
+
+  <joint name="base_link_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_dummy"/>
+    <child link="Chassis"/>
+  </joint>
+
+  <link name="Chassis">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="100"/>
+      <inertia ixx="10" ixy="0" ixz="0" iyy="10" iyz="0" izz="10"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <box size="0.1 1 0.005"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.1 1 0.005"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/> 
+    </visual>
+  </link>
+
+
+</robot>
+

@@ -1,0 +1,20 @@
+<?xml version ="1.0" encoding = "UTF-8"?>
+
+<launch>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py"></include>
+    <include file="$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py">
+        <arg name="world" value="$(find-pkg-share tricycle)/worlds/empty_state.world"/>
+        <arg name="pause" value = "true"/>
+    </include>
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher" output="screen">
+        <param name='robot_description' value="$(command 'cat $(find-pkg-share tricycle)/urdf/tricycle.urdf')"/>
+    </node>
+
+    <node pkg="gazebo_ros" exec='spawn_entity.py' output="screen" name="my_tricycle" 
+        args="-entity tricycle -file $(find-pkg-share tricycle)/urdf/tricycle.urdf -x 0.0 -y 0.0 -z 0.105">
+    </node>
+
+    <executable cmd="ros2 control load_controller --set-state active joint_state_broadcaster" output="screen"/>
+    <executable cmd="ros2 control load_controller --set-state active velocity_controller" output="screen"/>
+</launch>
