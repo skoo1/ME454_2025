@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+
+<robot name="cartpole">
+
+  <link name="world">
+  </link>
+
+  <joint name="rail_world_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 1"/>
+    <parent link="world"/>
+    <child link="rail_link"/>
+  </joint>
+
+  <link name="rail_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1000.0"/>
+      <inertia ixx="1.6666667" ixy="0" ixz="0" iyy="33334.1666666" iyz="0" izz="33334.1666666"/>
+    </inertial>
+
+    <visual>
+      <geometry>
+        <box size = "20.0 0.1 0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/> 
+    </visual>
+  </link>
+
+  <joint name="cart_rail_joint" type="prismatic">
+    <parent link="rail_link"/>
+    <child link="cart_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <limit effort="100000" lower="-10.0" upper="10.0" velocity="100"/>
+    <axis xyz="1 0 0"/>
+    <dynamics damping="0.00"/>
+  </joint>
+
+  <link name="cart_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="0.010833" ixy="0" ixz="0" iyy="0.024167" iyz="0" izz="0.028333"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.5 0.3 0.2"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="pole_joint" type="revolute">
+    <parent link="cart_link"/>
+    <child link="pole_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <limit effort="100000"  lower="-100000.0" upper="100000.0" velocity="100"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.0"/>
+  </joint>
+
+  <link name="pole_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
+      <mass value="8"/>
+      <inertia ixx="1.01" ixy="0" ixz="0" iyy="1.01" iyz="0" izz="0.04"/> 
+    </inertial>
+
+    <visual>
+      <geometry>
+        <cylinder length="1.2" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
+    </visual>
+  </link>
+
+  <gazebo reference="cart_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+  <gazebo reference="pole_link">
+    <material>Gazebo/Green</material>
+  </gazebo>
+
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+
+    <joint name="cart_rail_joint">
+      <command_interface name="effort">
+        <param name="min">-1000</param>
+        <param name="max">1000</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control> 
+
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find cartpole)/config/cartpoleeffort.yaml</parameters>
+    </plugin>
+  </gazebo>
+  
+  <gazebo>
+    <plugin name='joint_state_publisher' filename='libgazebo_ros_joint_state_publisher.so'>
+      <joint_name>cart_rail_joint</joint_name>
+      <joint_name>pole_joint</joint_name>
+      <update_rate>1000.0</update_rate>
+      <alwaysOn>1</alwaysOn>
+      <ros>
+      <namespace>/cartpole</namespace>
+      </ros>
+    </plugin>
+  </gazebo>
+  
+  <gazebo>
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/demo</namespace>
+        <argument>model_states:=model_states_demo</argument>
+        <argument>link_states:=link_states_demo</argument>
+      </ros>
+      <update_rate>1000.0</update_rate>
+    </plugin>
+  </gazebo>
+
+
+
+
+</robot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
